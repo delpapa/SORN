@@ -1,0 +1,99 @@
+/usr/lib/python2.7/dist-packages/IPython/utils/path.py:297: UserWarning: Ignoring ~/.config/ipython in favour of ~/.ipython. Remove ~/.config/ipython to get rid of this message
+  'to get rid of this message').format(cu(xdg_ipdir), cu(ipdir)))
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyError[0m                                  Traceback (most recent call last)
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/test_single.py[0m in [0;36m<module>[0;34m()[0m
+[1;32m     44[0m [0;34m([0m[0msource[0m[0;34m,[0m[0mstats_single[0m[0;34m,[0m[0m_[0m[0;34m)[0m [0;34m=[0m [0mexperiment[0m[0;34m.[0m[0mstart[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m     45[0m [0;34m[0m[0m
+[0;32m---> 46[0;31m [0msorn[0m [0;34m=[0m [0mSorn[0m[0;34m([0m[0mc[0m[0;34m,[0m[0msource[0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     47[0m [0;34m[0m[0m
+[1;32m     48[0m [0;31m# Create a StatsCollection and fill it with methods for all statistics[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sorn.pyc[0m in [0;36m__init__[0;34m(self, c, source)[0m
+[1;32m     63[0m         [0mself[0m[0;34m.[0m[0mx[0m [0;34m=[0m [0mrand[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_e[0m[0;34m)[0m[0;34m<[0m[0mc[0m[0;34m.[0m[0mh_ip[0m[0;34m[0m[0m
+[1;32m     64[0m         [0mself[0m[0;34m.[0m[0my[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_i[0m[0;34m)[0m [0;31m# CHANGE_A was rand(c.N_i)<mean(c.h_ip)[0m[0;34m[0m[0m
+[0;32m---> 65[0;31m         [0mself[0m[0;34m.[0m[0mu[0m [0;34m=[0m [0msource[0m[0;34m.[0m[0mnext[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     66[0m [0;34m[0m[0m
+[1;32m     67[0m         [0;31m# Initialize the pre-threshold variables[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mnext[0;34m(self)[0m
+[1;32m    199[0m             [0mself[0m[0;34m.[0m[0mnext_word[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    200[0m         [0mans[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mself[0m[0;34m.[0m[0mN_a[0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 201[0;31m         [0mans[0m[0;34m[[0m[0mself[0m[0;34m.[0m[0mindex[0m[0;34m([0m[0;34m)[0m[0;34m][0m [0;34m=[0m [0;36m1[0m[0;34m[0m[0m
+[0m[1;32m    202[0m         [0;32mreturn[0m [0mans[0m[0;34m[0m[0m
+[1;32m    203[0m [0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mindex[0;34m(self)[0m
+[1;32m    184[0m     [0;32mdef[0m [0mindex[0m[0;34m([0m[0mself[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0m
+[1;32m    185[0m         [0mcharacter[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mchar[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 186[0;31m         [0mind[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mlookup[0m[0;34m[[0m[0mcharacter[0m[0;34m][0m[0;34m[0m[0m
+[0m[1;32m    187[0m         [0;32mreturn[0m [0mind[0m[0;34m[0m[0m
+[1;32m    188[0m [0;34m[0m[0m
+
+[0;31mKeyError[0m: 'A'
+/usr/lib/python2.7/dist-packages/IPython/utils/path.py:297: UserWarning: Ignoring ~/.config/ipython in favour of ~/.ipython. Remove ~/.config/ipython to get rid of this message
+  'to get rid of this message').format(cu(xdg_ipdir), cu(ipdir)))
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyError[0m                                  Traceback (most recent call last)
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/test_single.py[0m in [0;36m<module>[0;34m()[0m
+[1;32m     44[0m [0;34m([0m[0msource[0m[0;34m,[0m[0mstats_single[0m[0;34m,[0m[0m_[0m[0;34m)[0m [0;34m=[0m [0mexperiment[0m[0;34m.[0m[0mstart[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m     45[0m [0;34m[0m[0m
+[0;32m---> 46[0;31m [0msorn[0m [0;34m=[0m [0mSorn[0m[0;34m([0m[0mc[0m[0;34m,[0m[0msource[0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     47[0m [0;34m[0m[0m
+[1;32m     48[0m [0;31m# Create a StatsCollection and fill it with methods for all statistics[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sorn.pyc[0m in [0;36m__init__[0;34m(self, c, source)[0m
+[1;32m     63[0m         [0mself[0m[0;34m.[0m[0mx[0m [0;34m=[0m [0mrand[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_e[0m[0;34m)[0m[0;34m<[0m[0mc[0m[0;34m.[0m[0mh_ip[0m[0;34m[0m[0m
+[1;32m     64[0m         [0mself[0m[0;34m.[0m[0my[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_i[0m[0;34m)[0m [0;31m# CHANGE_A was rand(c.N_i)<mean(c.h_ip)[0m[0;34m[0m[0m
+[0;32m---> 65[0;31m         [0mself[0m[0;34m.[0m[0mu[0m [0;34m=[0m [0msource[0m[0;34m.[0m[0mnext[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     66[0m [0;34m[0m[0m
+[1;32m     67[0m         [0;31m# Initialize the pre-threshold variables[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mnext[0;34m(self)[0m
+[1;32m    199[0m             [0mself[0m[0;34m.[0m[0mnext_word[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    200[0m         [0mans[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mself[0m[0;34m.[0m[0mN_a[0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 201[0;31m         [0mans[0m[0;34m[[0m[0mself[0m[0;34m.[0m[0mindex[0m[0;34m([0m[0;34m)[0m[0;34m][0m [0;34m=[0m [0;36m1[0m[0;34m[0m[0m
+[0m[1;32m    202[0m         [0;32mreturn[0m [0mans[0m[0;34m[0m[0m
+[1;32m    203[0m [0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mindex[0;34m(self)[0m
+[1;32m    184[0m     [0;32mdef[0m [0mindex[0m[0;34m([0m[0mself[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0m
+[1;32m    185[0m         [0mcharacter[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mchar[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 186[0;31m         [0mind[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mlookup[0m[0;34m[[0m[0mcharacter[0m[0;34m][0m[0;34m[0m[0m
+[0m[1;32m    187[0m         [0;32mreturn[0m [0mind[0m[0;34m[0m[0m
+[1;32m    188[0m [0;34m[0m[0m
+
+[0;31mKeyError[0m: 'D'
+/usr/lib/python2.7/dist-packages/IPython/utils/path.py:297: UserWarning: Ignoring ~/.config/ipython in favour of ~/.ipython. Remove ~/.config/ipython to get rid of this message
+  'to get rid of this message').format(cu(xdg_ipdir), cu(ipdir)))
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyError[0m                                  Traceback (most recent call last)
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/test_single.py[0m in [0;36m<module>[0;34m()[0m
+[1;32m     44[0m [0;34m([0m[0msource[0m[0;34m,[0m[0mstats_single[0m[0;34m,[0m[0m_[0m[0;34m)[0m [0;34m=[0m [0mexperiment[0m[0;34m.[0m[0mstart[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m     45[0m [0;34m[0m[0m
+[0;32m---> 46[0;31m [0msorn[0m [0;34m=[0m [0mSorn[0m[0;34m([0m[0mc[0m[0;34m,[0m[0msource[0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     47[0m [0;34m[0m[0m
+[1;32m     48[0m [0;31m# Create a StatsCollection and fill it with methods for all statistics[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sorn.pyc[0m in [0;36m__init__[0;34m(self, c, source)[0m
+[1;32m     63[0m         [0mself[0m[0;34m.[0m[0mx[0m [0;34m=[0m [0mrand[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_e[0m[0;34m)[0m[0;34m<[0m[0mc[0m[0;34m.[0m[0mh_ip[0m[0;34m[0m[0m
+[1;32m     64[0m         [0mself[0m[0;34m.[0m[0my[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mc[0m[0;34m.[0m[0mN_i[0m[0;34m)[0m [0;31m# CHANGE_A was rand(c.N_i)<mean(c.h_ip)[0m[0;34m[0m[0m
+[0;32m---> 65[0;31m         [0mself[0m[0;34m.[0m[0mu[0m [0;34m=[0m [0msource[0m[0;34m.[0m[0mnext[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0m[1;32m     66[0m [0;34m[0m[0m
+[1;32m     67[0m         [0;31m# Initialize the pre-threshold variables[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mnext[0;34m(self)[0m
+[1;32m    199[0m             [0mself[0m[0;34m.[0m[0mnext_word[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[1;32m    200[0m         [0mans[0m [0;34m=[0m [0mzeros[0m[0;34m([0m[0mself[0m[0;34m.[0m[0mN_a[0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 201[0;31m         [0mans[0m[0;34m[[0m[0mself[0m[0;34m.[0m[0mindex[0m[0;34m([0m[0;34m)[0m[0;34m][0m [0;34m=[0m [0;36m1[0m[0;34m[0m[0m
+[0m[1;32m    202[0m         [0;32mreturn[0m [0mans[0m[0;34m[0m[0m
+[1;32m    203[0m [0;34m[0m[0m
+
+[0;32m/home/delpapa/Desktop/Projects/CritSORN/codes/sorn/py/common/sources.pyc[0m in [0;36mindex[0;34m(self)[0m
+[1;32m    184[0m     [0;32mdef[0m [0mindex[0m[0;34m([0m[0mself[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0m
+[1;32m    185[0m         [0mcharacter[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mchar[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0m
+[0;32m--> 186[0;31m         [0mind[0m [0;34m=[0m [0mself[0m[0;34m.[0m[0mlookup[0m[0;34m[[0m[0mcharacter[0m[0;34m][0m[0;34m[0m[0m
+[0m[1;32m    187[0m         [0;32mreturn[0m [0mind[0m[0;34m[0m[0m
+[1;32m    188[0m [0;34m[0m[0m
+
+[0;31mKeyError[0m: 'D'

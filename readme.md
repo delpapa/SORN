@@ -15,7 +15,6 @@ To run the avalanche analysis, you first need to
 The experiments and parameter files from the paper can be found in the `delpapa` folder. The subfolder `Avalanche_Codes` contains the exact code to reproduce the paper figures.
 
 
-
-https://fias.uni-frankfurt.de/~delpapa/2017_criticality_meets_learning/
+The simulation data will soon be available [here](https://fias.uni-frankfurt.de/~delpapa/2017_criticality_meets_learning/).
 
 

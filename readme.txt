@@ -1,3 +1,7 @@
+# SORN 
+
+This code simulates the SORN model and is based on the previous implementation by [Hartmann et al.](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004640), which can be found [here](https://github.com/chrhartm/SORN). 
+
 # Where the codes come from and main explanation
 
 

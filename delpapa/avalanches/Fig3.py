@@ -8,31 +8,26 @@
 #
 ####
 
-from pylab import * 
+from pylab import *
 
 import tables
 import os
 from tempfile import TemporaryFile
-from matplotlib import gridspec # for the different subplot sizes
+from matplotlib import gridspec
 
 import data_analysis as analysis
-
-# work around to run powerlaw package [Alstott et al. 2014]
-import sys
-sys.path.append('/home/delpapa/lib/python2.7/site-packages')
-sys.path.append('/home/delpapa/lib/python2.7/site-packages/mpmath')
 import powerlaw as pl
 
 exp_name = 'N200'
 stable_steps = 3e6
-number_of_files = 50 
+number_of_files = 50
 Theta_range = np.array([5, 10, 15, 20, 25]) # values of Theta
 
 ### figure parameters
 width  =  8
-height = 3 # fix this to the golden ratio
+height = 3
 fig = figure(1, figsize=(width, height))
-gs = gridspec.GridSpec(1, 2) 
+gs = gridspec.GridSpec(1, 2)
 letter_size = 10
 letter_size_panel = 12
 line_width = 1.5
@@ -51,32 +46,31 @@ c_notstable = '#7887AB'
 
 print 'Fig. 3A...'
 fig_3a = subplot(121)
-	
-data_all = np.zeros((number_of_files, stable_steps))    
+
+data_all = np.zeros((number_of_files, stable_steps))
 for result_file in range(number_of_files):
-    
-    result_path = '../Avalanche_Experiments/Pengsheng_SORN/' +exp_name+\
-                                       '/'+str(result_file+1)+'/common/'
-    h5 = tables.openFile(os.path.join(result_path,'result.h5'),'r')
+
+    exper_path = ''
+    h5 = tables.openFile(os.path.join(exper_path,'result.h5'),'r')
     data = h5.root
     data_all[result_file] = \
-                  np.around(data.activity[0][-stable_steps:]*data.c.N_e) 
+                  np.around(data.activity[0][-stable_steps:]*data.c.N_e)
     h5.close()
-    
-act_density = zeros((number_of_files, data_all.max()+1))    
+
+act_density = zeros((number_of_files, data_all.max()+1))
 for data_file in xrange(number_of_files):
-        
+
     print 'Activity from file ' + str(data_file+1)
-        
+
     for i in xrange(int(stable_steps)):
         act_density[data_file, data_all[data_file, i]] += 1
     act_density[data_file, :] /= act_density[data_file, :].sum()
 
-# activity distribution and std    
+# activity distribution and std
 act_density_mean = act_density.mean(0)
-act_density_std = act_density.std(0) 
-    
-plot(act_density_mean, c_stable, linewidth=line_width) 
+act_density_std = act_density.std(0)
+
+plot(act_density_mean, c_stable, linewidth=line_width)
 
 
 text(5, 0.062, r'$5\%$', fontsize=letter_size, color='k')
@@ -95,10 +89,10 @@ xticks([0, 20, 40, 60], \
        ['$0$', '$20$', '$40$', '$60}$'])
 yticks([0, 0.03, 0.06], \
        ['$0.00$', '$0.03$', '$0.06$'])
-       
+
 fig_3a.spines['right'].set_visible(False)
 fig_3a.spines['top'].set_visible(False)
-fig_3a.tick_params(axis=u'both', which=u'both',length=0)       
+fig_3a.tick_params(axis=u'both', which=u'both',length=0)
 ########################################################################
 
 ########################################################################
@@ -109,18 +103,18 @@ fig_3b = subplot(122)
 
 print data_all.mean()
 
-for Theta_percent in Theta_range:   
+for Theta_percent in Theta_range:
     print 'Theta = '  + str(Theta_percent) + '%'
-    
+
     # Theta percentile goes here
     T_data, S_data = analysis.avalanches(data_all, 'N', '200', \
 					                      Theta_percent = Theta_percent)
-    	
+
     pl.plot_pdf(S_data, label =  str(Theta_percent)+ r'%', \
                                                    linewidth=line_width)
-    
+
     ####################################################################
-    # alpha and tau exponents calculation for Table S5 
+    # alpha and tau exponents calculation for Table S5
     # takes time - comment out if not needed
     T_fit = pl.Fit(T_data, xmin=6, xmax=60, discrete=True)
     T_alpha = T_fit.alpha
@@ -132,27 +126,27 @@ for Theta_percent in Theta_range:
     print 'Loglikelyhood ratio (power-law/exp) =', \
                T_fit.distribution_compare('power_law','exponential', \
                         normalized_ratio=True)
-    print 'tau = ', S_alpha, 'sigma = ', S_sigma   
+    print 'tau = ', S_alpha, 'sigma = ', S_sigma
     print 'Loglikelyhood ratio (power-law/exp) =', \
                S_fit.distribution_compare('power_law','exponential', \
                         normalized_ratio=True)
-    ####################################################################                    
-    
+    ####################################################################
+
     if Theta_percent == Theta_range.min():
         theta_low = percentile(data_all, Theta_percent)
         fig_3a.plot((theta_low, theta_low), (0, 0.06), 'k--')
     if Theta_percent == Theta_range.max():
         theta_high = percentile(data_all, Theta_percent)
-        fig_3a.plot((theta_high, theta_high), (0, 0.06), 'k--') 
+        fig_3a.plot((theta_high, theta_high), (0, 0.06), 'k--')
     if Theta_percent == 10:
         theta_aver = percentile(data_all, data_all.mean()/2)
         fig_3a.plot((theta_aver, theta_aver), (0, 0.07), 'k--', \
-                                               linewidth=line_width_fit)        
-    
+                                               linewidth=line_width_fit)
+
 ### Fill the shaded area
-range_to_fill = arange(0, len(act_density_mean), 1)    
+range_to_fill = arange(0, len(act_density_mean), 1)
 wh_to_fill = (range_to_fill <= theta_high) & (range_to_fill >=theta_low)
-boundary = zeros(len(act_density_mean))  
+boundary = zeros(len(act_density_mean))
 fig_3a.fill_between(range_to_fill, act_density_mean, boundary,\
                       where = wh_to_fill, facecolor=c_stable, alpha=0.5)
 
@@ -165,7 +159,7 @@ fig_3b.spines['right'].set_visible(False)
 fig_3b.spines['top'].set_visible(False)
 fig_3b.xaxis.set_ticks_position('bottom')
 fig_3b.yaxis.set_ticks_position('left')
-tick_params(labelsize=letter_size)  
+tick_params(labelsize=letter_size)
 
 # ticks name
 xlim([1, 3000])
@@ -180,20 +174,19 @@ legend(loc=(0.5, 0.55), prop={'size':letter_size}, \
                             title=r'Activity percentile', frameon=False)
 fig_3b.get_legend().get_title().set_fontsize(letter_size)
 
-    
-######################################################################## 
+
+########################################################################
 fig_3a.annotate('A', xy=subplot_letter, xycoords='axes fraction', \
                 fontsize=letter_size_panel ,  fontweight='bold', \
-                horizontalalignment='right', verticalalignment='bottom') 
+                horizontalalignment='right', verticalalignment='bottom')
 fig_3b.annotate('B', xy=subplot_letter, xycoords='axes fraction', \
                 fontsize=letter_size_panel ,  fontweight='bold', \
-                horizontalalignment='right', verticalalignment='bottom')    
+                horizontalalignment='right', verticalalignment='bottom')
 gcf().subplots_adjust(bottom=0.17)
-fig.subplots_adjust(wspace=.4) 
-    
-print 'Saving figures...',		
-result_path = '../Avalanche_Results/'
-result_name_png = 'Fig3.pdf' 
+fig.subplots_adjust(wspace=.4)
+
+print 'Saving figures...',
+result_path = '../../plot'
+result_name_png = 'Fig3.pdf'
 savefig(os.path.join(result_path, result_name_png), format='pdf')
 print 'done\n\n'
-

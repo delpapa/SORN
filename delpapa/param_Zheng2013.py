@@ -3,14 +3,15 @@ import numpy as np
 import utils
 utils.backup(__file__)
 from common.defaults import *
+import random
 
-c.N_e = 200
-c.N_i = int(np.floor(0.2*c.N_e))
+c.N_e = 200                      # number of excitatory neurons
+c.N_i = int(np.floor(0.2*c.N_e)) # number of inhibitory neurons
 c.N = c.N_e + c.N_i
-c.N_u_e = 0
+c.N_u_e = 0                      # no input
 
 c.W_ee = utils.Bunch(use_sparse=True,
-                     lamb=0.1*c.N_e,
+                     lamb = 0.1*c.N_e,
                      avoid_self_connections=True,
                      eta_stdp = 0.004,
                      sp_prob =  c.N_e*(c.N_e-1)*(0.1/(200*199)),
@@ -29,24 +30,20 @@ c.W_ie = utils.Bunch(use_sparse=False,
                      lamb=1.0*c.N_i,
                      avoid_self_connections=True)
 
-c.steps_plastic = 2000000 # steps before the perturbation
-c.steps_perturbation = 2000000 # steps after the perturbation
-c.N_steps = (c.steps_plastic + 2*c.steps_perturbation)
-c.N_iterations = 1
+c.steps_plastic = 5000000
+c.N_steps = c.steps_plastic
 c.eta_ip = 0.01
 c.h_ip = 0.1
-c.noise_sig = np.sqrt(0.05)
-c.noise_fire = 0
-c.noise_fire_struc = 0
 
+# noise parameters
+c.noise_sig =  np.sqrt(0.05)  # Gaussian noise
+c.noise_fire = 0              # Random spike noise
+c.noise_fire_struc = 0        # Random spike noise (subset), set to 1
 
 c.stats.file_suffix = 'test'
 c.display = True
-# save the spikes of the perturbation perdiod:
-# first half is the non-perturbated network
-# second half is the perturbated network
-c.stats.only_last_spikes = (2*c.steps_perturbation)
+c.stats.only_last_spikes = 1000 # save all last spikes (careful!)
 c.stats.save_spikes = True
 
-c.experiment.module = 'delpapa.experiment_FrozenPlasticity'
+c.experiment.module = 'delpapa.experiment_Zheng2013'
 c.experiment.name = 'Experiment_test'

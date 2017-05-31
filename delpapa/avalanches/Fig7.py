@@ -12,9 +12,6 @@ from tempfile import TemporaryFile
 import data_analysis as analysis
 
 # work around to run powerlaw package [Alstott et al. 2014]
-import sys
-sys.path.append('/home/delpapa/lib/python2.7/site-packages')
-sys.path.append('/home/delpapa/lib/python2.7/site-packages/mpmath')
 import powerlaw as pl
 
 ### figure parameters
@@ -54,8 +51,7 @@ for experiment_folder in ['n4_aval', 'n20_aval']:
     for result_file in xrange(n_trials):
 
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Counting_task/' + \
-               experiment_folder + '/' + str(result_file+1) + '/common/'
+        exper_path =  ''
         h5 = tables.open_file(os.path.join(exper_path,exper),'r')
         data = h5.root
         data_all[result_file] = np.around(data.activity[0] \
@@ -130,8 +126,7 @@ for experiment_folder in ['n4', 'n6', 'n8', 'n14', 'n20']:
 
         # read data files
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Counting_task/' + \
-               experiment_folder + '/' + str(file_number+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
 
@@ -206,8 +201,7 @@ for experiment_folder in ['n4_nonoise', 'n6_nonoise', 'n8_nonoise',
 
         # read data files
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Counting_task/' + \
-                 experiment_folder + '/' + str(file_number+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
 
@@ -299,8 +293,7 @@ for experiment_folder in ['n4_andrea', 'n6_andrea', 'n8_andrea', \
 
         # read data files
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Counting_task/' + \
-                 experiment_folder + '/' + str(file_number+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
 
@@ -390,8 +383,7 @@ for experiment_folder in ['L10', 'L20', 'L100']:
     for result_file in xrange(n_trials):
 
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Random_task/' + \
-               experiment_folder + '/' + str(result_file+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
 
@@ -478,8 +470,7 @@ for experiment_folder in ['L10', 'L20', 'L50', 'L100']:
 
         # read data files
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Random_task/' + \
-               experiment_folder + '/' + str(file_number+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
 
@@ -570,8 +561,8 @@ fig_7f.annotate('F', xy=subplot_letter, xycoords='axes fraction', \
                 horizontalalignment='right', verticalalignment='bottom')
 
 print 'Saving figures...',
-result_path = '../../../Avalanche_Results/'
-result_name_png = 'Fig7_test.pdf'
+result_path = '../../plots/'
+result_name_png = 'Fig7.pdf'
 savefig(os.path.join(result_path, result_name_png), format = 'pdf')
 
 show()

@@ -1,7 +1,7 @@
 ################################################################################
 # Script for the 1st paper figure                                              #
 # A: 3 Network phases;                                                         #
-# B: activity thresholding example (from PhengshengSORN)                       #
+# B: activity thresholding example                                             #
 ################################################################################
 
 from pylab import *
@@ -10,16 +10,19 @@ import os
 from tempfile import TemporaryFile
 
 import matplotlib.ticker as mtick
-import matplotlib.patches as patches # for the arrows - FancyArrowPatch
+import matplotlib.patches as patches
 from matplotlib import gridspec
 
-exp_file = 19 # random file
+
 plot_last_steps = 150
 exper = 'result.h5'
 
 # this should be the path to the experiments folder
-exper_path = '../../../Avalanche_Experiments/Pengsheng_SORN/' \
-                   + 'N200' + '/' + str(exp_file) + '/common/'
+# CHANGE ACCORDINGLY!
+# path for the experiment
+exper_path = ''
+# path for the results
+result_path = '../../plots/'
 h5 = tables.openFile(os.path.join(exper_path,exper),'r')
 data = h5.root
 activity = data.activity[0][-plot_last_steps-100:-100]*float(value)
@@ -125,8 +128,6 @@ ylabel(r'$a(t)$' + r' [# neurons]', fontsize=letter_size)
 tick_params(axis='both', which='major', labelsize=letter_size)
 ################################################################################
 
-
-
 ### Panel label stuff
 fig.text(0.01, 0.9, "A", weight="bold", \
                          horizontalalignment='left', verticalalignment='center')
@@ -136,7 +137,6 @@ gcf().subplots_adjust(bottom=0.17)
 fig.subplots_adjust(wspace=.4)
 
 print 'Saving figures...',
-result_path = '../../../Avalanche_Results/'
 result_name_png = 'Fig1.pdf'
 savefig(os.path.join(result_path, result_name_png), format='pdf')
 print 'done\n\n'

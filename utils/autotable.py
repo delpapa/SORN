@@ -45,7 +45,7 @@ class AutoTable:
         self.warnings = True
         if fname is None:
             fname = self._guess_fname()
-        self.h5 = tables.openFile(fname, "w")
+        self.h5 = tables.open_file(fname, "w")
         self.compression_level = compression_level
 
     def close(self):
@@ -128,10 +128,10 @@ class AutoTable:
 
         if type(example)==str:
             h5type = tables.VLStringAtom()
-            h5.createVLArray( parent, name, h5type, filters=filters )
+            h5.create_vlarray( parent, name, h5type, filters=filters )
             return
         if type(example)==dict:
-            self.h5.createGroup(parent, name)
+            self.h5.create_group(parent, name)
             return
         #If we get here then we're dealing with numpy arrays
         example = np.asarray(example)
@@ -154,7 +154,7 @@ class AutoTable:
         try:
             h5type = type_map[example.dtype.name]
             h5dim = (0,) + example.shape
-            h5.createEArray( parent, name, h5type, h5dim, filters=filters )
+            h5.create_earray( parent, name, h5type, h5dim, filters=filters )
         except KeyError:
             raise TypeError("Don't know how to handle dtype '%s'" % example.dtype)
 

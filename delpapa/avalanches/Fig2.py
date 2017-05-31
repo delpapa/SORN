@@ -1,4 +1,3 @@
-####
 ################################################################################
 # Script for the 2nd paper figure                                              #
 # A: N200 duration distribution                                                #
@@ -9,21 +8,16 @@
 # F: Power-law range X network size                                            #
 #                                                                              #
 # Script also used for comparison between power-law fit and other              #
-# 1-parameter distributions for Table S4 (from Fig2B)                          #
+# 1-parameter distributions for Table S1 (from Fig2B)                          #
 ################################################################################
 
 from pylab import *
 import tables
 import os
 from tempfile import TemporaryFile
-from matplotlib import gridspec # for the different subplot sizes
+from matplotlib import gridspec
 
 import data_analysis as analysis
-
-# work around to run powerlaw package [Alstott et al. 2014]
-import sys
-sys.path.append('/home/delpapa/lib/python2.7/site-packages')
-sys.path.append('/home/delpapa/lib/python2.7/site-packages/mpmath')
 import powerlaw as pl
 
 ### Files to run
@@ -55,7 +49,7 @@ THETA = 'half'
 
 #count files
 print 'Loading experiment files...'
-exper_path = '../Avalanche_Experiments/Pengsheng_SORN/' + exp_name
+exper_path = ''
 
 #load the data in 'data_all'
 data_all = zeros((number_of_files, stable_steps))
@@ -153,7 +147,7 @@ S_fit.truncated_power_law.plot_pdf(color=c_expcut,\
           linewidth=line_width, zorder=2)
 
 ########################################################################
-# S4 - comparison to distribution with 1 parameter:
+# S1 - comparison to distribution with 1 parameter:
 #      exponential and streched_exponential
 #      The distributions with 2 parameters have, of course,
 #      a better fit: lognormal, truncated_exponential
@@ -254,7 +248,7 @@ print 'Fig 2D...'
 fig_2d = subplot(gs[3])
 for v in values:
 
-    exper_path = '../Avalanche_Experiments/Pengsheng_SORN/'+variable+v
+    exper_path = ''
 
     data_all = np.zeros((number_of_files, stable_steps))
     for result_file in range(number_of_files):
@@ -297,7 +291,7 @@ print 'Fig 2E...'
 fig_2e = subplot(gs[4])
 for v in values:
 
-    exper_path = '../Avalanche_Experiments/Pengsheng_SORN/'+variable+v
+    exper_path = ''
 
     data_all = np.zeros((number_of_files, stable_steps))
     for result_file in range(number_of_files):
@@ -418,7 +412,7 @@ fig.subplots_adjust(hspace=.65)
 
 # saving figures
 print 'Saving figures...',
-result_path = '../Avalanche_Results/'
+result_path = '../../plots'
 result_name_png = 'Fig2.pdf'
 savefig(os.path.join(result_path, result_name_png), format='pdf')
 print 'done\n\n'

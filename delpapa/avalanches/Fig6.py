@@ -3,18 +3,13 @@
 # A,B: Comparison among SORN, input onset and readaptation
 ####
 
-from pylab import * 
+from pylab import *
 
 import tables
 import os
 from tempfile import TemporaryFile
 
 import data_analysis as analysis
-
-# work around to run powerlaw package [Alstott et al. 2014]
-import sys
-sys.path.append('/home/delpapa/lib/python2.7/site-packages')
-sys.path.append('/home/delpapa/lib/python2.7/site-packages/mpmath')
 import powerlaw as pl
 
 section_steps = 2e6
@@ -42,11 +37,11 @@ subplot_letter = (-0.15, 0.9)
 # Fig. 1A,B: Gaussian Noise + ABCD + Gaussian Noise
 
 for regime in possible_regimes:
-    
+
     print '\n', regime, '...'
-    
-    
-    
+
+
+
     if regime == 'extrainput_start':
         n_trials = number_of_files_trans
         data_all = zeros((n_trials, extrainput_steps))
@@ -57,41 +52,39 @@ for regime in possible_regimes:
     elif regime == 'normal':
         n_trials = number_of_files
         data_all = zeros((n_trials, section_steps))
-    
-    
+
+
     for result_file in xrange(n_trials):
 
         exper = 'result.h5'
-        exper_path =  '../../../Avalanche_Experiments/Extra_Input/' + \
-                                                   experiment_folder + \
-                                   '/' + str(result_file+1) + '/common/'
+        exper_path =  ''
         h5 = tables.openFile(os.path.join(exper_path,exper),'r')
         data = h5.root
-        
+
         if regime == 'normal':
             data_all[result_file] = np.around(data.activity[0] \
-                             [section_steps:2*section_steps]*data.c.N_e)  
-                                              
+                             [section_steps:2*section_steps]*data.c.N_e)
+
         if regime == 'extrainput_start':
-            # 100 * etra input steps here is to count all avalanches 
+            # 100 * etra input steps here is to count all avalanches
             # that start in the window I want
             data_all[result_file] = np.around(data.activity[0] \
                    [2*section_steps:2*section_steps + extrainput_steps]\
                                                             *data.c.N_e)
             data_all2[result_file] = np.around(data.activity[0] \
                 [2*section_steps:2*section_steps + 10*extrainput_steps]\
-                                                            *data.c.N_e)    
-                                                               
+                                                            *data.c.N_e)
+
         if regime == 'extrainput_end':
             data_all[result_file] = np.around(data.activity[0] \
-                       [2*section_steps + extrainput_steps:]*data.c.N_e)                                                                                                             
+                       [2*section_steps + extrainput_steps:]*data.c.N_e)
         h5.close()
 
     ### Fig3 : Plot activity distribution
     figure(3)
-    act_density = zeros((number_of_files, data_all.max()+1))    
+    act_density = zeros((number_of_files, data_all.max()+1))
     for data_file in xrange(number_of_files):
-        
+
         steps = section_steps
         if regime == 'extrainput_start':
             steps = extrainput_steps
@@ -107,48 +100,48 @@ for regime in possible_regimes:
     if regime == 'extrainput_start':
         plot(act_density_mean, 'r')
     if regime == 'extrainput_end':
-        plot(act_density_mean, 'g')    
+        plot(act_density_mean, 'g')
 
     print 'Mean =', data_all.mean()
     print 'Std =', data_all.std()
-               
-    if regime == 'normal':    
+
+    if regime == 'normal':
         Thres_normal = int(data_all.mean()/2.) + 1 # rounding purposes
         T_data, S_data = analysis.avalanches(data_all, 'N', '200', \
                                                  Threshold=Thres_normal)
-                                                 
+
         a_dur1, a_area1 = analysis.avalanches(data_all, 'N', '200',\
                                                       Theta_percent = 5)
         a_dur2, a_area2 = analysis.avalanches(data_all, 'N', '200',\
-                                                     Theta_percent = 25)                                             
-                                                  
-    if regime == 'extrainput_start':    
+                                                     Theta_percent = 25)
+
+    if regime == 'extrainput_start':
         Thres_start = Thres_normal # 20
         T_data, S_data = analysis.avalanches(data_all2, 'N', '200', \
                     Threshold=Thres_start, Transient = extrainput_steps)
-                    
+
         a_dur1, a_area1 = analysis.avalanches(data_all2, 'N', '200',\
                          Threshold=9, Transient = extrainput_steps)
         a_dur2, a_area2 = analysis.avalanches(data_all2, 'N', '200',\
                           Threshold=12, Transient = extrainput_steps)
-    
-                                                   
-    if regime == 'extrainput_end':  
+
+
+    if regime == 'extrainput_end':
         Thres_end = Thres_normal
         T_data, S_data = analysis.avalanches(data_all, 'N', '200', \
                                                     Threshold=Thres_end)
         a_dur1, a_area1 = analysis.avalanches(data_all, 'N', '200',\
                                                       Theta_percent = 5)
         a_dur2, a_area2 = analysis.avalanches(data_all, 'N', '200',\
-                                                     Theta_percent = 25)                                                
-                                                        
-                                                                                                
+                                                     Theta_percent = 25)
+
+
     figure(1)
     fig_6a = subplot(121)
-    if regime == 'normal':        
+    if regime == 'normal':
         pl.plot_pdf(T_data, color='k', linewidth = line_width_fit)
         a_dur1_pdf = pl.pdf(a_dur1, 10)
-        a_dur2_pdf = pl.pdf(a_dur2, 10) 
+        a_dur2_pdf = pl.pdf(a_dur2, 10)
         BinCenters1 = (a_dur1_pdf[0][:-1]+a_dur1_pdf[0][1:])/2.
         BinCenters2 = (a_dur2_pdf[0][:-1]+a_dur2_pdf[0][1:])/2.
         x_max = a_dur1_pdf[0].max()
@@ -156,11 +149,11 @@ for regime in possible_regimes:
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_dur2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='k', alpha=0.2)
 
-        
-        
+
+
     if regime == 'extrainput_start':
         a_dur1_pdf = pl.pdf(a_dur1, 10)
-        a_dur2_pdf = pl.pdf(a_dur2, 10) 
+        a_dur2_pdf = pl.pdf(a_dur2, 10)
         BinCenters1 = (a_dur1_pdf[0][:-1]+a_dur1_pdf[0][1:])/2.
         BinCenters2 = (a_dur2_pdf[0][:-1]+a_dur2_pdf[0][1:])/2.
         x_max = a_dur1_pdf[0].max()
@@ -168,25 +161,25 @@ for regime in possible_regimes:
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_dur2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='r', alpha=0.2)
 
-        pl.plot_pdf(T_data, color='r', linewidth = line_width)         
+        pl.plot_pdf(T_data, color='r', linewidth = line_width)
     if regime == 'extrainput_end':
-        
+
         a_dur1_pdf = pl.pdf(a_dur1, 10)
-        a_dur2_pdf = pl.pdf(a_dur2, 10)            
+        a_dur2_pdf = pl.pdf(a_dur2, 10)
         BinCenters1 = (a_dur1_pdf[0][:-1]+a_dur1_pdf[0][1:])/2.
         BinCenters2 = (a_dur2_pdf[0][:-1]+a_dur2_pdf[0][1:])/2.
         x_max = a_dur1_pdf[0].max()
         interp1 = np.interp(np.arange(x_max), BinCenters1, a_dur1_pdf[1])
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_dur2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='cyan', alpha=0.2)
-  
+
         pl.plot_pdf(T_data, color='cyan', linewidth = line_width_fit)
 
     fig_6b = subplot(122)
     if regime == 'normal':
-        
+
         a_area1_pdf = pl.pdf(a_area1, 10)
-        a_area2_pdf = pl.pdf(a_area2, 10) 
+        a_area2_pdf = pl.pdf(a_area2, 10)
         BinCenters1 = (a_area1_pdf[0][:-1]+a_area1_pdf[0][1:])/2.
         BinCenters2 = (a_area2_pdf[0][:-1]+a_area2_pdf[0][1:])/2.
         x_max = a_area1_pdf[0].max()
@@ -194,14 +187,14 @@ for regime in possible_regimes:
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_area2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='k', alpha=0.2)
 
-        
-        
+
+
         pl.plot_pdf(S_data, color='k', linewidth = line_width_fit, \
                                                            label='Before input')
     if regime == 'extrainput_start':
-        
+
         a_area1_pdf = pl.pdf(a_area1, 10)
-        a_area2_pdf = pl.pdf(a_area2, 10) 
+        a_area2_pdf = pl.pdf(a_area2, 10)
         BinCenters1 = (a_area1_pdf[0][:-1]+a_area1_pdf[0][1:])/2.
         BinCenters2 = (a_area2_pdf[0][:-1]+a_area2_pdf[0][1:])/2.
         x_max = a_area1_pdf[0].max()
@@ -209,13 +202,13 @@ for regime in possible_regimes:
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_area2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='r', alpha=0.2)
 
-        
+
         pl.plot_pdf(S_data, color='r', linewidth = line_width, \
-                                                    label='Input onset')        
+                                                    label='Input onset')
     if regime == 'extrainput_end':
-        
+
         a_area1_pdf = pl.pdf(a_area1, 10)
-        a_area2_pdf = pl.pdf(a_area2, 10) 
+        a_area2_pdf = pl.pdf(a_area2, 10)
         BinCenters1 = (a_area1_pdf[0][:-1]+a_area1_pdf[0][1:])/2.
         BinCenters2 = (a_area2_pdf[0][:-1]+a_area2_pdf[0][1:])/2.
         x_max = a_area1_pdf[0].max()
@@ -223,15 +216,15 @@ for regime in possible_regimes:
         interp2 = np.interp(np.arange(x_max), BinCenters2, a_area2_pdf[1])
         fill_between(np.linspace(0,x_max,len(interp2)), interp2, interp1, facecolor='cyan', alpha=0.2)
 
-        
+
         pl.plot_pdf(S_data, color='cyan', linewidth = line_width_fit, \
-                                                 label = 'Readaptation') 
+                                                 label = 'Readaptation')
 
 
 subplot(121)
 xscale('log'); yscale('log')
 xlabel(r'$T$', fontsize=letter_size)
-ylabel(r'$f(T)$', fontsize=letter_size) 
+ylabel(r'$f(T)$', fontsize=letter_size)
 fig_6a.spines['right'].set_visible(False)
 fig_6a.spines['top'].set_visible(False)
 fig_6a.xaxis.set_ticks_position('bottom')
@@ -241,11 +234,11 @@ xlim([1, 300])
 ylim([0.0001, 1])
 xticks([1, 10, 100], ['$10^0$', '$10^{1}$', '$10^{2}$'])
 yticks([1, 0.01, 0.0001], ['$10^0$', '$10^{-2}$', '$10^{-4}$'])
-tick_params(labelsize=letter_size)                
+tick_params(labelsize=letter_size)
 
-              
+
 subplot(122)
-xscale('log'); yscale('log')	 
+xscale('log'); yscale('log')
 xlabel(r'$S$', fontsize=letter_size)
 ylabel(r'$f(S)$', fontsize=letter_size)
 fig_6b.spines['right'].set_visible(False)
@@ -264,16 +257,16 @@ legend(loc=(0.5, 0.8), prop={'size':letter_size}, frameon=False)
 ########################################################################
 fig_6a.annotate('A', xy=subplot_letter, xycoords='axes fraction', \
                 fontsize=letter_size_panel ,  fontweight='bold', \
-                horizontalalignment='right', verticalalignment='bottom') 
+                horizontalalignment='right', verticalalignment='bottom')
 fig_6b.annotate('B', xy=subplot_letter, xycoords='axes fraction', \
                 fontsize=letter_size_panel ,  fontweight='bold', \
-                horizontalalignment='right', verticalalignment='bottom') 
-                
+                horizontalalignment='right', verticalalignment='bottom')
+
 gcf().subplots_adjust(bottom=0.17)
-fig_6.subplots_adjust(wspace=.4) 
- 
-print 'Saving figures...',		
-result_path = '../../../Avalanche_Results/'
-result_name_png = 'Fig6_test.pdf'
+fig_6.subplots_adjust(wspace=.4)
+
+print 'Saving figures...',
+result_path = '../../plots/'
+result_name_png = 'Fig6.pdf'
 savefig(os.path.join(result_path, result_name_png), format = 'pdf')
 plt.show()

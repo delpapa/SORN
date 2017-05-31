@@ -12,7 +12,6 @@ utils.backup(__file__)
 
 from scipy.io import savemat
 import datetime
-from utils.pca import pca
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.stats.stats import pearsonr
 
@@ -24,17 +23,17 @@ import platform
 
 plot_MDS = True
 normalize_PCA = False
-matplotlib.rcParams.update({'font.size': 10}) 
+matplotlib.rcParams.update({'font.size': 10})
 
-def plot_results(result_path,result):   
-    h5 = tables.openFile(os.path.join(result_path,result),'r')
-    data = h5.root 
+def plot_results(result_path,result):
+    h5 = tables.open_file(os.path.join(result_path,result),'r')
+    data = h5.root
     pickle_dir = data.c.logfilepath[0]
     plots_path = os.path.join('..','plots')
     if not os.path.exists(plots_path):
         os.mkdir(plots_path)
     os.chdir(plots_path)
-        
+
 	### Plot the connection fraction
     if data.__contains__('ConnectionFraction'):
         print 'plot connectionfraction'
@@ -45,7 +44,7 @@ def plot_results(result_path,result):
         utils.saveplot('ConnectionFraction.pdf')
 
 
-    if data.__contains__('activity') and False:
+    if data.__contains__('activity'):
         print 'plot activity'
         figure()
         activity = data.activity[0, :]
@@ -55,10 +54,10 @@ def plot_results(result_path,result):
         utils.saveplot('Activity.pdf')
 
 	### Plot the E spikes
-    ### plot the raster of the last last_n_spikes steps	
-    ### plot the activity of the last last_n_spikes steps			 
-    if data.__contains__('Spikes') and False:
-      
+    ### plot the raster of the last last_n_spikes steps
+    ### plot the activity of the last last_n_spikes steps
+    if data.__contains__('Spikes'):
+
         print 'plot spikes'
         # raster plot (last_n_spikes)
         last_spikes = data.c.stats.only_last_spikes[0]
@@ -74,7 +73,7 @@ def plot_results(result_path,result):
 				hold('on')
         ylabel('Excitatory Neuron')
         ylim(0.5, i + 1.5)
-        
+
         if data.__contains__('activity'):
 			activity = data.activity[0, -last_spikes:]
 			subplot(212)
@@ -82,11 +81,11 @@ def plot_results(result_path,result):
 			xlabel('Step'); ylabel('activity')
         tight_layout()
         utils.saveplot('Raster_end.pdf')
-          
+
     if data.__contains__('SpikesInh'):
-		
+
         print 'plot spikesInh'
-        last_spikes = data.c.stats.only_last_spikes[0]       
+        last_spikes = data.c.stats.only_last_spikes[0]
         spikes = data.SpikesInh[0, :, -last_spikes:]
         figure()
         if data.__contains__('activity'):
@@ -106,12 +105,12 @@ def plot_results(result_path,result):
 			xlabel('Step'); ylabel('activity')
         tight_layout()
         utils.saveplot('Raster_end_inh.pdf')
-    
+
     ### Plot the degree distribution and the curve fit of the end weight
     if data.__contains__('endweight'):
         print 'plot endweight'
-        		
-        N_e = data.c.N_e[0]     
+
+        N_e = data.c.N_e[0]
 
         # First the logweight:
         logweight = data.endweight[0][data.endweight[0]>0]
@@ -139,7 +138,7 @@ def plot_results(result_path,result):
         tight_layout()
         utils.saveplot('LogWeights_%s.pdf'%\
                                           (data.c.stats.file_suffix[0]))
-        
+
         # Now scale-free property
         tmp = data.endweight[0]>0.
         binary_connections = tmp
@@ -159,24 +158,24 @@ def plot_results(result_path,result):
         plt.suptitle('Degree distributions')
         utils.saveplot('Degree_Distributions_%s.pdf'%\
                                           (data.c.stats.file_suffix[0]))
-                                          
+
         # Now the weight matrix
         fig_mat = figure()
         imshow(data.endweight[0], cmap='Greys', interpolation='nearest')
         colorbar()
         tight_layout()
         utils.saveplot('FinalWeightMatrix_%s.pdf'%\
-                                          (data.c.stats.file_suffix[0])) 
-    
+                                          (data.c.stats.file_suffix[0]))
+
     ### Plot ISIs
     if data.__contains__('ISIs'):
         print 'plot ISIs'
-        
+
         figure()
         ISIs = data.ISIs[0]
         x = np.array(range(0,shape(ISIs)[1]))
         y = ISIs[randint(0,shape(ISIs)[0])]
-        
+
 
         # Do the fitting
         def exponential(x, a, b):
@@ -212,7 +211,7 @@ def plot_results(result_path,result):
         legend(('Data', fitlabel))# (scale:%.3f exponent:%.3f)'%(popt[0],-popt[1])))
         tight_layout()
         utils.saveplot('ISIs_%s.pdf'%(data.c.stats.file_suffix[0]))
-        
+
         # Plot the CV hist
         # TODO CHANGE
         #~ if data.c.stats.__contains__('ISI_step'):
@@ -226,33 +225,34 @@ def plot_results(result_path,result):
         CVs = array(CVs)
         CVs = CVs[CVs>0] #ignore nans
         n, bins, patches = hist(CVs)
-        xlim([floor((min(bins[n>0])-0.1)*10)*0.1, 
+        xlim([floor((min(bins[n>0])-0.1)*10)*0.1,
                                     floor((max(bins[n>0])+0.2)*10)*0.1])
         xlabel('ISI CV')
         ylabel('Frequency')
         utils.saveplot('ISIs_CV_%s.pdf'%(data.c.stats.file_suffix[0]))
-    
-    
+
+
     h5.close()
     tight_layout()
-    # show()
+    #~ show() ### this line print the figures on the screen (TURN IF OFF for loop runnings)
+
 
 def plot_results_perturbation(result_path,result):
-    h5 = tables.openFile(os.path.join(result_path,result),'r')
-    data = h5.root 
+    h5 = tables.open_file(os.path.join(result_path,result),'r')
+    data = h5.root
     pickle_dir = data.c.logfilepath[0]
     plots_path = os.path.join('..','plots')
     if not os.path.exists(plots_path):
         os.mkdir(plots_path)
     os.chdir(plots_path)
-    	
+
 	### Plot the connection fraction
     if data.__contains__('ConnectionFraction'):
         print 'plot connectionfraction'
         figure()
         non_pert_data = data.ConnectionFraction[0][:data.c.steps_plastic[0]+data.c.steps_perturbation[0]]
         pert_data = data.ConnectionFraction[0][data.c.steps_plastic[0]+data.c.steps_perturbation[0]:]
-        
+
         plot(non_pert_data, label='Without perturbation')
         non_pert_data_x = np.arange(size(non_pert_data)-size(pert_data), size(non_pert_data))
         plot(non_pert_data_x, pert_data, 'r', label='With perturbation')
@@ -262,12 +262,12 @@ def plot_results_perturbation(result_path,result):
         utils.saveplot('ConnectionFraction.pdf')
 
     ### plot the activity difference after the perturbation
-    if data.__contains__('activity') and False:
+    if data.__contains__('activity'):
         print 'plot activity'
         figure()
         non_pert_act = data.activity[0][:data.c.steps_plastic[0]+data.c.steps_perturbation[0]]
         pert_act = data.activity[0][data.c.steps_plastic[0]+data.c.steps_perturbation[0]:]
-        
+
         plot(non_pert_act, label='Without perturbation')
         non_pert_act_x = np.arange(size(non_pert_act)-size(pert_act), size(non_pert_act))
         plot(non_pert_act_x, pert_act, 'r', label='With perturbation')
@@ -276,28 +276,28 @@ def plot_results_perturbation(result_path,result):
         tight_layout()
 
 	### Plot the E spikes
-    ### plot the raster of the non-perturbated and perturbated spikes	
-    ### plot the difference of spikes			 
+    ### plot the raster of the non-perturbated and perturbated spikes
+    ### plot the difference of spikes
     if data.__contains__('Spikes'):
-      
+
         print 'plot spikes'
         # raster plot (last_n_spikes)
         last_spikes = data.c.stats.only_last_spikes[0]
         non_pert_spikes = data.Spikes[0, :, -last_spikes:-last_spikes/2]
         pert_spikes = data.Spikes[0, :, -last_spikes/2:]
-        
+
         only_non_pert = non_pert_spikes - pert_spikes
         only_non_pert[only_non_pert < 0] = 0
         only_pert = pert_spikes - non_pert_spikes
-        only_pert[only_pert < 0] = 0 
-              
+        only_pert[only_pert < 0] = 0
+
         figure()
         subplot(211)
         steps = -1 # data.c.steps_plastic[0]
         for (i,sp) in enumerate(only_non_pert):
             s_train = where(sp == 1)[0]
             if s_train != []:
-                if i == 1: # small change to add the label - TODO looks terrible, change this ASAP 
+                if i == 1: # small change to add the label - TODO looks terrible, change this ASAP
                     vlines(s_train, i + 0.5, i + 1.5, 'b', label = 'Without perturbation only')
                 else:
                     vlines(s_train, i + 0.5, i + 1.5, 'b')
@@ -315,7 +315,7 @@ def plot_results_perturbation(result_path,result):
         xlim([0,1000])
 
         ylim(0.5, i + 1.5)
-        
+
         subplot(212)
         diff = abs(non_pert_spikes-pert_spikes)
         plot(sum(diff, 0), 'k')
@@ -323,12 +323,7 @@ def plot_results_perturbation(result_path,result):
         xlabel('Step after perturbation')
         tight_layout()
         utils.saveplot('Raster_end.pdf')
-        
+
     h5.close()
     tight_layout()
     #~ show() ### this line print the figures on the screen (TURN IF OFF for loop runnings)
-
-
-#~ if __name__=='__main__':        
-    #~ plot_results(r'/home/delpapa/Desktop/sorn/py/backup/test_single/2014-08-27 11-05-36/common','result.h5')
-    #~ show()

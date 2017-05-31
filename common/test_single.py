@@ -26,7 +26,7 @@ def debugger(type,flag):
     pass
     # import ipdb
     # ipdb.set_trace()
-np.seterrcall(debugger)    
+np.seterrcall(debugger)
 np.seterr(all='call')
 
 ##### To control the random seed
@@ -41,7 +41,7 @@ experiment = getattr(experiment_module,experiment_name)(param)
 c = param.c
 c.logfilepath = utils.logfilename('')+'/'
 
-(source,stats_single,_) = experiment.start()
+(source,stats_single) = experiment.start()
 
 sorn = Sorn(c,source)
 
@@ -58,14 +58,14 @@ stats.dlog.set_handler('*',utils.TextPrinter)
 
 # Final experimental preparations
 experiment.reset(sorn)
-            
+
 # Start stats
 sorn.stats.start()
 sorn.stats.clear()
 
 ##### To control the random seed after initialization!
-# np.random.seed(3)            
-        
+# np.random.seed(3)
+
 # Run experiment once
 pickle_objects = experiment.run(sorn)
 
@@ -75,13 +75,13 @@ for key in pickle_objects:
     # using reference directly doesn't work
     topickle = pickle_objects[key]
     pickle.dump(topickle, gzip.open(filename,"wb"),
-     pickle.HIGHEST_PROTOCOL)    
+     pickle.HIGHEST_PROTOCOL)
 
 # Control: Firing-rate model: Substitute spikes by drawing random spikes
 # according to firing rate for each inputindex
 if sorn.c.stats.control_rates:
     experiment.control_rates(sorn)
-                             
+
 # Report stats and close
 stats.single_report()
 stats.disable = True

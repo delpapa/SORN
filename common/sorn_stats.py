@@ -8,7 +8,6 @@ from stats import AbstractStat
 from stats import HistoryStat
 from stats import _getvar
 from common.sources import TrialSource
-from utils.lstsq_reg import lstsq_reg
 
 import cPickle as pickle
 import gzip
@@ -24,7 +23,7 @@ def load_source(name,c):
                      c.cluster.current_param)
         sourcefile = gzip.open(filename,"r")
     source = pickle.load(sourcefile)
-    
+
     if isinstance(source,TrialSource):
         source = source.source
     return source
@@ -34,7 +33,7 @@ def all_pairs_shortest_path(graph_matrix):
     N = shape(graph_matrix)[0]
     distances = graph_matrix.copy()
     #Set missing connections to max length
-    distances[distances==0] += N*N 
+    distances[distances==0] += N*N
     for k in range(N):
         for i in range(N):
             for j in range(N):
@@ -112,7 +111,7 @@ class PopulationVariance(AbstractStat):
 class ActivityStat(AbstractStat):
     """
     Gathers the state of the network at each step
-    
+
     If the parameter only_last is set, only the first and last steps are
     collected
     """
@@ -142,8 +141,8 @@ class ActivityStat(AbstractStat):
         self.step += 1
     def report(self,c,sorn):
         return c.activity
- 
-### Activity of the I neurons        
+
+### Activity of the I neurons
 class ActivityInhibStat(AbstractStat):
 
     def __init__(self):
@@ -156,10 +155,10 @@ class ActivityInhibStat(AbstractStat):
         c.activityInh[self.step] = sum(sorn.y)/sorn.c.N_i
         self.step += 1
     def report(self,c,sorn):
-        return c.activityInh      
-                  
+        return c.activityInh
+
 class CountingLetterStat(AbstractStat):
-    
+
     def __init__(self):
         self.name = 'countingletter'
         self.collection = 'gather'
@@ -169,37 +168,37 @@ class CountingLetterStat(AbstractStat):
     def add(self,c,sorn):
         new_step = self.step - sorn.c.steps_plastic
         if sorn.c.C_steps > new_step >= 0:
-            c.inputletter[new_step] = sorn.source.index()      
+            c.inputletter[new_step] = sorn.source.index()
         self.step += 1
     def report(self,c,sorn):
-        return c.inputletter    
- 
-class CountingActivityStat(AbstractStat): 
- 
+        return c.inputletter
+
+class CountingActivityStat(AbstractStat):
+
     def __init__(self):
         self.name = 'countingactivity'
         self.collection = 'gather'
     def clear(self,c,sorn):
         c.inputactivity = zeros((sorn.c.N_e, sorn.c.C_steps))
-        self.step = 0        
+        self.step = 0
     def add(self,c,sorn):
         new_step = self.step - sorn.c.steps_plastic
         if sorn.c.C_steps > new_step >= 0:
             c.inputactivity[:, new_step] = sorn.R_x
-            #c.inputactivity[:, new_step] = sorn.x       
-        self.step += 1        
+            #c.inputactivity[:, new_step] = sorn.x
+        self.step += 1
     def report(self,c,sorn):
-        return c.inputactivity  
+        return c.inputactivity
 ### T
 class CorrelationStat(AbstractStat):
-    
+
     def __init__(self):
         self.name = 'correlation_coef'
         self.collection = 'gather'
-               
-    def report(self, c, sorn):    
+
+    def report(self, c, sorn):
         return c.correlation_coef
- 
+
 class InputIndexStat(AbstractStat):
     """
     Gathers the index of the input at each step
@@ -230,7 +229,7 @@ class InputIndexStat(AbstractStat):
         self.step += 1
     def report(self,c,sorn):
         return c.inputindex
-        
+
 class WordListStat(AbstractStat):
     # OLD! use pickle of source instead!
     def __init__(self):
@@ -238,7 +237,7 @@ class WordListStat(AbstractStat):
         self.collection = 'gather'
     def report(self,c,sorn):
         return sorn.c.words
-        
+
 class InputUnitsStat(AbstractStat):
     def __init__(self):
         self.name = 'InputUnits'
@@ -246,12 +245,12 @@ class InputUnitsStat(AbstractStat):
     def report(self,c,sorn):
         input_units = where(sum(sorn.W_eu.get_synapses(),1)>0)[0]
         # to make them equal in size
-        tmp = array([z in input_units for z in arange(sorn.c.N_e)]) 
+        tmp = array([z in input_units for z in arange(sorn.c.N_e)])
         return tmp+0 # cast as double
-        
+
 class NormLastStat(AbstractStat):
     '''
-    This is a helper Stat that computes the normalized last spikes 
+    This is a helper Stat that computes the normalized last spikes
     and input indices
     # TODO changed the input steps from plastic phase to train phase!!!
     # CHECK if still works
@@ -271,7 +270,7 @@ class NormLastStat(AbstractStat):
         # Filter out empty states
         input_spikes = input_spikes[:,input_index != -1]
         input_index = input_index[input_index != -1]
-        
+
         if sorn.c.stats.has_key('only_last'):
             N_comparison = sorn.c.stats.only_last
         else:
@@ -280,7 +279,7 @@ class NormLastStat(AbstractStat):
         assert(N_comparison <= steps_noplastic_test \
              and N_comparison <= steps_noplastic_train)
         maxindex = int(max(input_index))
-        
+
         # Only use spikes that occured at the end of learning and spont
         last_input_spikes = input_spikes[:,-N_comparison:]
         last_input_index = input_index[-N_comparison:]
@@ -313,12 +312,12 @@ class NormLastStat(AbstractStat):
         norm_last_input_index = norm_last_input_index[indices]
         norm_last_input_spikes = norm_last_input_spikes[:,indices]
         c.norm_last_input_index = norm_last_input_index
-        c.norm_last_input_spikes = norm_last_input_spikes   
-        c.maxindex = maxindex  
+        c.norm_last_input_spikes = norm_last_input_spikes
+        c.maxindex = maxindex
         c.N_comparison = N_comparison
         to_return = array([float(N_comparison)])
         return to_return
-        
+
 class SpontPatternStat(AbstractStat):
     """
     Computes the frequency of each pattern in the spontaneous activity
@@ -334,13 +333,13 @@ class SpontPatternStat(AbstractStat):
         norm_last_input_spikes = c.norm_last_input_spikes
         maxindex = c.maxindex
         N_comparison = c.N_comparison
-        
-        last_spont_spikes = spont_spikes[:,-N_comparison:] #CHANGE was -N_comparison          
-                
+
+        last_spont_spikes = spont_spikes[:,-N_comparison:] #CHANGE was -N_comparison
+
         # Remove silent periods from spontspikes
         last_spont_spikes = last_spont_spikes[:,sum(last_spont_spikes,0)>0]
         N_comp_spont = shape(last_spont_spikes)[1]
-        
+
         # Find for each spontaneous state the evoked state with the
         # smallest hamming distance and store the corresponding index
         similar_input = zeros(N_comp_spont)
@@ -379,7 +378,7 @@ class SpontPatternStat(AbstractStat):
             pattern_freqs[:,-1] = -1
         c.similar_input = similar_input
         return(pattern_freqs)
-        
+
 class SpontTransitionStat(AbstractStat):
     def __init__(self):
         self.name = 'SpontTransition'
@@ -391,14 +390,14 @@ class SpontTransitionStat(AbstractStat):
         for (i_from, i_to) in zip(similar_input[:-1],similar_input[1:]):
             transitions[i_to,i_from] += 1
         return transitions
-        
+
 class SpontIndexStat(AbstractStat):
     def __init__(self):
         self.name = 'SpontIndex'
         self.collection = 'gather'
     def report (self,c,sorn):
         return c.similar_input
-        
+
 class BayesStat(AbstractStat):
     def __init__(self,pred_pos = 0):
         self.name = 'Bayes'
@@ -426,7 +425,7 @@ class BayesStat(AbstractStat):
         inputi_test = c.inputindex[N_inputtrain_steps:]
         assert(shape(inputi_test)[0]== N_test_steps)
         N_fracs = len(sorn.c.frac_A)
-        
+
         # Filter out empty states
         if isinstance(sorn.source,TrialSource): # if TrialSource
             source = sorn.source.source
@@ -460,7 +459,7 @@ class BayesStat(AbstractStat):
                 = inputi_train[indices[-min_letter_count:]]
         Xtrain = norm_Xtrain
         inputi_train = norm_inputi_train
-        
+
         # CHANGE_A she doesn't take input untis into account
         noinput_units = where(sum(sorn.W_eu.W,1)==0)[0]
         if sorn.c.stats.bayes_noinput:
@@ -475,35 +474,35 @@ class BayesStat(AbstractStat):
         pred_pos = len(source_plastic.words[0])-1-self.pred_pos # position from which to predict end of word
         assert(source_plastic.words[0][0]=="A" and \
                 source_plastic.words[1][0]=="B")
- 
-        R = np.zeros((2,shape(inputi_train)[0]))    
+
+        R = np.zeros((2,shape(inputi_train)[0]))
         R[0,:] = inputi_train == A_index+pred_pos
         R[1,:] = inputi_train == B_index+pred_pos
-        
+
         if sorn.c.stats.relevant_readout:
-            Xtrain_relevant = Xtrain_noinput[((inputi_train == 
-                                               A_index+pred_pos) + 
+            Xtrain_relevant = Xtrain_noinput[((inputi_train ==
+                                               A_index+pred_pos) +
                                 (inputi_train == B_index+pred_pos))>0,:]
-            R_relevant = R[:,((inputi_train == A_index+pred_pos) + 
+            R_relevant = R[:,((inputi_train == A_index+pred_pos) +
                                 (inputi_train == B_index+pred_pos))>0]
             classifier = lstsq_reg(Xtrain_relevant,R_relevant.T,sorn.c.stats.lstsq_mue)
             #~ try:
-                #~ rw = R_relevant.dot(linalg.pinv(Xtrain_relevant).T) 
+                #~ rw = R_relevant.dot(linalg.pinv(Xtrain_relevant).T)
             #~ except Exception:
                 #~ print 'exception'
                 #~ try:
-                    #~ rw = R_relevant.dot(linalg.pinv(Xtrain_relevant.T)) 
+                    #~ rw = R_relevant.dot(linalg.pinv(Xtrain_relevant.T))
                 #~ except Exception:
                     #~ print 'Exception in pinv'
                     #~ output_drive = np.zeros((N_fracs,2))
                     #~ output_std = np.zeros((N_fracs,2))
                     #~ return hstack((output_drive,output_std))
-                                
+
         else:
             classifier = lstsq_reg(Xtrain_noinput,R.T,sorn.c.stats.lstsq_mue)
             # inverting X.T yields numerical errors!!!
             #~ try:
-                #~ rw = R.dot(linalg.pinv(Xtrain_noinput).T) 
+                #~ rw = R.dot(linalg.pinv(Xtrain_noinput).T)
             #~ except Exception:
                 #~ try:
                     #~ rw = R.dot(linalg.pinv(Xtrain_noinput.T))
@@ -512,15 +511,15 @@ class BayesStat(AbstractStat):
                     #~ output_drive = np.zeros((N_fracs,2))
                     #~ output_std = np.zeros((N_fracs,2))
                     #~ return hstack((output_drive,output_std))
-                
+
         #~ classifier = rw.T
-            
-        
-        
-        # predict 
+
+
+
+        # predict
         #~ raw_predictions = Xtest.dot(classifier)
-        raw_predictions = Xtest_noinput.dot(classifier) # CHANGE_A 
-        
+        raw_predictions = Xtest_noinput.dot(classifier) # CHANGE_A
+
         # Historical stuff
         # Raw predictions = total synaptic input to M/N neurons
         #raw_predictions[1:,0] = sum((sorn.W_ee*Xtest[:-1].T)[self.M_neurons],0)
@@ -534,11 +533,11 @@ class BayesStat(AbstractStat):
         # Because alphabet is sorted alphabetically, this list will
         # have the letters corresponding to the list frac_A
         for l in source.alphabet:
-            if not ((l=='A') or (l=='B') or (l=='M') or (l=='N') 
+            if not ((l=='A') or (l=='B') or (l=='M') or (l=='N')
                      or (l=='X') or (l=='_')):
                 letters_for_frac.append(l)
         letters_for_frac.append('A')
-        
+
         output_drive = np.zeros((N_fracs,2))
         output_std = np.zeros((N_fracs,2))
         decisions = np.zeros((N_fracs,2))
@@ -560,7 +559,7 @@ class BayesStat(AbstractStat):
         output_std[:,1]   /= denom
         decisions[:,0] /= denom
         decisions[:,1] /= denom
-        
+
         # for other stats (e.g. SpontBayesStat)
         c.pred_pos = pred_pos
         c.Xtest = Xtest
@@ -569,21 +568,21 @@ class BayesStat(AbstractStat):
         c.letters_for_frac = letters_for_frac
         c.classifier = classifier
         c.noinput_units = noinput_units
-            
+
         #to_return = hstack((output_drive,output_std))
         to_return = hstack((output_drive,output_std,decisions))
         # print 'in sorn_stats:', sorn.c.source.prob
         # print to_return
-        
+
         if pred_pos < 0:
             import ipdb
             ipdb.set_trace()
-        
+
         return to_return
-        
+
 class AttractorDynamicsStat(AbstractStat):
     """
-    This stat tracks the distance between output gains during the 
+    This stat tracks the distance between output gains during the
     input presentation to determine whether the decision is based on
     attractor dynamics
     """
@@ -607,7 +606,7 @@ class AttractorDynamicsStat(AbstractStat):
                 break
         assert(bayes_stat is not None)
         pred_pos_old = bayes_stat.pred_pos
-        
+
         #output_dist = np.zeros((word_length-1,N_fracs))
         output_dist = np.zeros((word_length,N_fracs))
         min_trials = inf
@@ -617,8 +616,8 @@ class AttractorDynamicsStat(AbstractStat):
                 min_trials = tmp
         decisions = np.zeros((N_words,word_length,min_trials),dtype=np.bool)
         seq_count = np.zeros((N_words,4))
-        
-        
+
+
         for (p,pp) in enumerate(arange(0,word_length)):
             bayes_stat.pred_pos = pp
             bayes_stat.report(c,sorn)
@@ -640,7 +639,7 @@ class AttractorDynamicsStat(AbstractStat):
                 decisions[w,p,:] = raw_predictions[indices[-min_trials:],0]>raw_predictions[indices[-min_trials:],1]
                 denom[i]          += 1
             output_dist[p,:] /= denom
-        
+
         for i in range(N_words):
             # Full-length 1s to be expected
             seq_count[i,0] = ((sum(decisions[i])/(1.*min_trials*word_length))**(word_length))*min_trials
@@ -650,12 +649,12 @@ class AttractorDynamicsStat(AbstractStat):
             seq_count[i,2] = ((1-(sum(decisions[i])/(1.*min_trials*word_length)))**(word_length))*min_trials
             seq_count[i,3] = sum(sum(decisions[i],0)==0)
 
-            
+
         print seq_count # TODO do something with this
         bayes_stat.pred_pos = pred_pos_old
         bayes_stat.report(c,sorn)
-        return output_dist        
-        
+        return output_dist
+
 class OutputDistStat(AbstractStat):
     """
     This stat reports the distance between output gains as an indicator
@@ -675,15 +674,15 @@ class OutputDistStat(AbstractStat):
         else:
             source = sorn.source
         N_fracs = len(sorn.c.frac_A)
-        
-        # TODO should these really be normalized? it blows up small 
+
+        # TODO should these really be normalized? it blows up small
         # prediction errors to attractor behavior if both preds are
         # small
         summed = abs(raw_predictions[:,0])+abs(raw_predictions[:,1])
         summed[summed<1e-10] = 1 # if predicted 0, leave at 0
         raw_predictions[:,0] /= summed
         raw_predictions[:,1] /= summed
-        
+
         output_dist = np.zeros((N_fracs))
         output_std = np.zeros((N_fracs))
         denom = np.zeros((N_fracs))
@@ -704,7 +703,7 @@ class TrialBayesStat(AbstractStat):
     """
     This stat looks at the interaction of spontaneous activity before
     stimulus onset with the final prediction
-    
+
     index: int
         Word index (global) for which prediction is done
     """
@@ -730,7 +729,7 @@ class TrialBayesStat(AbstractStat):
                 source = sorn.source.source
         else:
             raise NotImplementedError
-        
+
          # select middle word
         index = source.glob_ind[1+(shape(source.glob_ind)[0]-3)//2]
         forward_pred = sorn.c.stats.forward_pred
@@ -742,27 +741,27 @@ class TrialBayesStat(AbstractStat):
         pred_indices = pred_indices[(pred_indices>start_indices[0])*
                     ((pred_indices+forward_pred)<shape(inputi_test)[0])]
         assert(N_samples == shape(pred_indices)[0])
-        
+
         if sorn.c.stats.bayes_noinput:
             raw_predictions = Xtest[:,noinput_units].dot(classifier_old)
         else:
             raw_predictions = Xtest.dot(classifier_old)
         predictions = raw_predictions[pred_indices,:]
-        
+
         # Two different baselines
         #~ test_base = ones((shape(Xtest)[0],1))
         test_base = Xtest.copy()
         shuffle(test_base) # without shuffle, identical predictions
         test_base = hstack((test_base,ones((shape(Xtest)[0],1))))
-        
+
         # Add bias term to exclude effects of varability
         N_exc += 1
         Xtest = hstack((Xtest,ones((shape(Xtest)[0],1))))
-        
+
         # Divide into train and test set
         predictions_train = predictions[:N_samples//2]
         predictions_test = predictions[N_samples//2:]
-        
+
         train_A = predictions_train[:,0]>predictions_train[:,1]
         train_B = train_A==False
         train_A = find(train_A==True)
@@ -771,10 +770,10 @@ class TrialBayesStat(AbstractStat):
         # This case is filtered out during plotting
         if not(shape(train_A)[0]>0 and shape(train_B)[0]>0):
             return np.ones((2,STA_window))*-1
-        
-        agreement_lstsq = np.zeros(STA_window)     
-        agreement_base = np.zeros(STA_window)     
-        # This maps 0/1 spikes to -1/1 spikes for later * comparison   
+
+        agreement_lstsq = np.zeros(STA_window)
+        agreement_base = np.zeros(STA_window)
+        # This maps 0/1 spikes to -1/1 spikes for later * comparison
         predtrain_lstsq = (predictions_train[:,0]>\
                                              predictions_train[:,1])*2-1
         predtest_lstsq = (predictions_test[:,0]>\
@@ -789,7 +788,7 @@ class TrialBayesStat(AbstractStat):
                                      # this is where the -1/1 comes in
             agreement_lstsq[i] = sum((predictions_lstsq*predtest_lstsq)\
                                                    >0)/(1.*N_samples//2)
-        
+
         # Baseline prediction (loop is unnecessary and for similarity)
         for i in range(-STA_window,0):
             classifier_base = lstsq_reg(test_base[\
@@ -805,7 +804,7 @@ class TrialBayesStat(AbstractStat):
         for i in range(N_samples):
             trials[i,:,:] = Xtest[start_indices[i]-STA_window\
                           +forward_pred:start_indices[i]+forward_pred,:]
-                          
+
         STA_A = mean(trials[train_A,:,:],0)
         STA_B = mean(trials[train_B,:,:],0)
 
@@ -815,18 +814,18 @@ class TrialBayesStat(AbstractStat):
         for i in range(N_samples//2,N_samples):
             overlap_A[i-N_samples//2] = trials[i]*STA_A
             overlap_B[i-N_samples//2] = trials[i]*STA_B
-        
+
         agreement = np.zeros(STA_window)
         pred_gain_A = predictions_test[:,0]>predictions_test[:,1]
         for i in range(STA_window):
             pred_STA_A = sum(overlap_A[:,i,:],1)>sum(overlap_B[:,i,:],1)
             agreement[i] = sum(pred_gain_A == pred_STA_A)
         agreement /= float(shape(pred_gain_A)[0])
-        
+
         #print shape(train_A)[0]/(1.0*shape(train_B)[0])
         #print sum(pred_gain_A)/(-1.0*sum(pred_gain_A-1))
         return vstack((agreement_base, agreement_lstsq)) # TODO put STA back
-    
+
 class SpontBayesStat(AbstractStat):
     def __init__(self):
         self.name = 'SpontBayes'
@@ -837,7 +836,7 @@ class SpontBayesStat(AbstractStat):
         inputi_test = c.inputi_test
         raw_predictions = c.raw_predictions
         Xtest = c.Xtest
-        
+
         # Filter out empty states
         if isinstance(sorn.source,TrialSource): # if TrialSource
             source = sorn.source.source
@@ -845,10 +844,10 @@ class SpontBayesStat(AbstractStat):
             source = sorn.source
         Xtest = Xtest[inputi_test != -1,:]
         inputi_test = inputi_test[inputi_test != -1]
-        
-        
+
+
         letters_for_frac = c.letters_for_frac
-        # Results will first be saved in dict for simplicity and later 
+        # Results will first be saved in dict for simplicity and later
         # subsampled to an array
         cue_act = {}
         pred_gain = {}
@@ -863,7 +862,7 @@ class SpontBayesStat(AbstractStat):
             #~ if pred_indices[-1]>shape(inputi_test)[0]: # taken care of by above line
                 #~ cue_indices = cue_indices[:-1]
                 #~ pred_indices = pred_indices[:-1]
-            # Get x-states at cue_indices and figure out the number of 
+            # Get x-states at cue_indices and figure out the number of
             # active input units for A and B
             tmp_cue = Xtest[cue_indices]
             tmp_cue = vstack((
@@ -880,7 +879,7 @@ class SpontBayesStat(AbstractStat):
                 pred_gain[i] = tmp_gain
             if shape(cue_act[i])[0]<minlen:
                 minlen = shape(cue_act[i])[0]
-        
+
         minlen = 18 # hack for cluster - otherwise variable minlen # TODO super ugly - try to make prettier
         # subsample to make suitable for array
         n_conditions = max(cue_act.keys())+1
@@ -889,11 +888,11 @@ class SpontBayesStat(AbstractStat):
             to_return[i,:,:2] = cue_act[i][-minlen:]
             to_return[i,:,2:] = pred_gain[i][-minlen:]
         return to_return
-        
+
 class EvokedPredStat(AbstractStat):
     """
     This stat predicts evoked activity from spontaneous activity
-        
+
     traintimes is an interval of training data
     testtimes is an interval of testing data
     """
@@ -911,26 +910,26 @@ class EvokedPredStat(AbstractStat):
         Xtest = c.spikes[:,testtimes[0]:testtimes[1]].T
         inputi_train = c.inputindex[traintimes[0]:traintimes[1]]
         inputi_test = c.inputindex[testtimes[0]:testtimes[1]]
-        
+
         # Determine word length
         source = load_source("source_%s"%self.traintest,sorn.c)
         N_words = len(source.words)
         max_word_length = int(max([len(x) for x in source.words]))
         max_spont_length = int(sorn.c['wait_min_%s'%self.traintest]
                               +sorn.c['wait_var_%s'%self.traintest])
-        
+
         pred_window = max_word_length + max_spont_length + max_word_length
-        
+
         correlations = zeros((N_words,pred_window,2))
         import scipy.stats as stats
-        
+
         # Convert 0/1 spike trains to -1/1 spike trains if needed
         if sorn.c.stats.match:
             Xtrain *= 2
             Xtrain -= 1
             Xtest *= 2
             Xtest -= 1
-        
+
         word_length = 0
         for (w,word) in enumerate(source.words):
             word_starts_train = find(inputi_train==(word_length))
@@ -939,10 +938,10 @@ class EvokedPredStat(AbstractStat):
             word_starts_test  = find(inputi_test==(word_length))
             word_starts_test  = word_starts_test[word_starts_test<\
                                           (shape(Xtest)[0]-pred_window)]
-                                          
+
             bias_train = ones((shape(word_starts_train)[0],1))
             bias_test = ones((shape(word_starts_test)[0],1))
-            
+
             base_train = Xtrain[word_starts_train-1,:].copy()
             base_test = Xtest[word_starts_test-1,:].copy()
             shuffle(base_train)
@@ -958,7 +957,7 @@ class EvokedPredStat(AbstractStat):
                 # First do a least-squares fit
                 Xt_train = Xtrain[word_starts_train+t,:]
                 Xt_test  = Xtest[word_starts_test+t,:]
-                
+
                 # regularize with mue to avoid problems when #samples <
                 # #neurons
                 try:
@@ -990,12 +989,12 @@ class EvokedPredStat(AbstractStat):
                     correlations[w,t,0] = match(Xt_pred.flatten(),Xt_test.flatten())
                     correlations[w,t,1] = match(base_pred.flatten(),Xt_test.flatten())
             word_length += len(word)
-                
+
         # Correlations are sorted like the words:
         # A B C D E ... B = 0*A C = 0.1*A, D=0.2*A ...
         return correlations
-        
-### spikes of the last 'only_last_steps'        
+
+### spikes of the last 'only_last_steps'
 class SpikesStat(AbstractStat):
     def __init__(self,inhibitory = False):
         if inhibitory:
@@ -1037,7 +1036,7 @@ class SpikesStat(AbstractStat):
         else:
             return zeros(0)
 
-### spikes of the last 'only last steps' for I neurons            
+### spikes of the last 'only last steps' for I neurons
 class SpikesInhStat(AbstractStat):
     def __init__(self):
         self.name = 'SpikesInh'
@@ -1066,7 +1065,7 @@ class SpikesInhStat(AbstractStat):
             return c[self.sattr]
         else:
             return zeros(0)
-            
+
 class CondProbStat(AbstractStat):
     def __init__(self):
         self.name='CondProb'
@@ -1089,7 +1088,7 @@ class CondProbStat(AbstractStat):
         for i in xrange(N):
             condspikes[i,:] /= spike_sum
         return condspikes
-        
+
 class BalancedStat(AbstractStat):
     """
     This stat records the excitatory and inhibitory input and thresholds
@@ -1109,7 +1108,7 @@ class BalancedStat(AbstractStat):
         self.step += 1
     def report(self,c,sorn):
         return c.balanced
-        
+
 class RateStat(AbstractStat):
     """
     This stat returns a matrix of firing rates of each presynaptic
@@ -1129,7 +1128,7 @@ class RateStat(AbstractStat):
         N = shape(spikes)[0] # number of neurons
         rates = mean(spikes,1)
         return array([rates,]*N)
-        
+
 class InputStat(AbstractStat):
     def __init__(self):
         self.name = 'Input'
@@ -1157,7 +1156,7 @@ class FullEndWeightStat(AbstractStat):
         tmp2 = np.vstack((sorn.W_ei.get_synapses(),\
                           np.zeros((sorn.c.N_i,sorn.c.N_i))))
         return np.array(hstack((tmp1,tmp2)))
-        
+
 class EndWeightStat(AbstractStat):
     def __init__(self):
         self.name = 'endweight'
@@ -1186,9 +1185,9 @@ class ISIsStat(AbstractStat):
         if self.interval == []:
             self.interval = [0,sorn.c.N_steps]
     def add(self,c,sorn):
-        if ((self.step > self.interval[0] and 
-             self.step < self.interval[1]) and 
-             ((not sorn.c.stats.has_key('only_last_spikes')) 
+        if ((self.step > self.interval[0] and
+             self.step < self.interval[1]) and
+             ((not sorn.c.stats.has_key('only_last_spikes'))
                 or (self.step > sorn.c.stats.only_last_spikes))):
             spikes = sorn.x[self.mask]
             self.isis[spikes==0] += 1
@@ -1339,7 +1338,7 @@ class WeightChangeStat(AbstractStat):
         stacked = np.vstack((self.weights, self.abschange,\
                             self.relchange))
         return stacked
-        
+
 class WeightChangeRumpelStat(AbstractStat):
     def __init__(self):
         self.name = 'WeightChangeRumpel'
@@ -1377,10 +1376,10 @@ class WeightChangeRumpelStat(AbstractStat):
         # compute diffs and multiply with const
         import pdb
         pdb.set_trace()
-        
+
         diffs = self.save_W_ees[1:,:,:] - self.save_W_ees[:-1,:,:]
         diffs *= self.constant_weights
-        
+
         self.abschange = (diffs[diffs!=0])
         self.weights = self.save_W_ees[:-1,:,:][diffs!=0]
         self.relchange = self.abschange/self.weights*100
@@ -1390,7 +1389,7 @@ class WeightChangeRumpelStat(AbstractStat):
         self.weights = np.append(self.weights,tmp_zeros)
         self.abschange = np.append(self.abschange,tmp_zeros)
         self.relchange = np.append(self.relchange,tmp_zeros)
-        
+
         stacked = np.vstack((self.weights, self.abschange,\
                              self.relchange))
         return stacked
@@ -1458,7 +1457,7 @@ class ParamTrackerStat(AbstractStat):
         for item in sorn.c.cluster.vary_param.split('.'):
             tmp = tmp[item]
         return np.array([tmp*1.0])
-        
+
 class InputWeightStat(AbstractStat):
     def __init__(self):
         self.name = 'InputWeight'
@@ -1505,7 +1504,7 @@ class SVDStat(AbstractStat):
             # this returns the real V
             # see http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.svd.html
             c.SVD_V[step] = V.T
-            
+
             # Resolve sign ambiguity
             # from http://www.models.life.ku.dk/signflipsvd
             # http://prod.sandia.gov/techlib/access-control.cgi/2007/076422.pdf
@@ -1528,7 +1527,7 @@ class SVDStat(AbstractStat):
         #~ figure() # combine same submatrices!
         #~ imshow(c.SVD_U[-1][:,0].dot(c.SVD_V[-1][:,0].T)*c.SVD_singulars[-1,0], interpolation='none')
         return c.SVD_singulars
-        
+
 class SVDStat_U(AbstractStat):
     def __init__(self):
         self.name = 'SVD_U'
@@ -1553,7 +1552,7 @@ class SVDStat_U(AbstractStat):
                 similar_input[s,i] = c.norm_last_input_index[max_overlap]
         c.SVD_U_sim = similar_input # for debugging
         return similar_input
-        
+
 class SVDStat_V(AbstractStat):
     def __init__(self):
         self.name = 'SVD_V'
@@ -1564,7 +1563,7 @@ class SVDStat_V(AbstractStat):
         N_indices = max(c.norm_last_input_index)+1
         indices = [where(c.norm_last_input_index==i)[0] for i in range(int(N_indices))]
         for s in xrange(rec_steps):
-            for i in xrange(sorn.c.N_e):                
+            for i in xrange(sorn.c.N_e):
                 # V transforms input by taking product
                 # Do same here and look which spike vector works best
                 #~ overlaps = c.norm_last_input_spikes.T.dot(c.SVD_V[s,:,i])
@@ -1591,7 +1590,7 @@ class SVDStat_V(AbstractStat):
         !show()
         '''
         return similar_input
-        
+
 class MeanActivityStat(AbstractStat):
     """
     This stat returns the mean activity for each inputindex
@@ -1610,7 +1609,7 @@ class MeanActivityStat(AbstractStat):
     def add(self,c,sorn):
         if self.step > self._start and self.step < self._stop:
             self.index = sorn.source.global_index()+1
-            #~ # Look at _last_ index because this will have the recurrent 
+            #~ # Look at _last_ index because this will have the recurrent
             #~ # effect
             if self.index is not None:
                 self.means[self.index] += sum(sorn.x)
@@ -1620,13 +1619,13 @@ class MeanActivityStat(AbstractStat):
         self.step += 1
     def report(self,c,sorn):
         return self.means/self.counter
-        
+
 class PatternProbabilityStat(AbstractStat):
     """
     This stat estimates the probability distribution of patterns
     for different time intervals
-    
-    Intervals: List of 2-entry lists 
+
+    Intervals: List of 2-entry lists
         [[start1,stop1],...,[startn,stopn]]
     zero_correction: Bool
         Correct estimates by adding one observation to each pattern
@@ -1716,9 +1715,9 @@ class XClassifierStat(AbstractStat):
     def report(self,_,sorn):
         c = sorn.c
         #Disable plasticity when measuring network
-        sorn.update = False 
+        sorn.update = False
         #Don't track statistics when measuring either
-        self.parent.disable = True 
+        self.parent.disable = True
 
         #Build classifiers
         Nr = c.test_num_train
@@ -1811,12 +1810,12 @@ class SynapticDistributionStat(AbstractStat):
     def report(self,_,sorn):
         W = sorn.W_ee.T
         Mask = sorn.M_ee.T
-        # This code might be a little fragile but fast 
+        # This code might be a little fragile but fast
         # (note transposes rely on memory laid out in particular order)
-        #~ N = sorn.c.N_e  
+        #~ N = sorn.c.N_e
         #~ M = sorn.c.lamb
         #This relies on a fixed # of non-zero synapses per neuron
-        #~ ans = (W[Mask]).reshape(N,M).T.copy() 
+        #~ ans = (W[Mask]).reshape(N,M).T.copy()
         ans = W[Mask]
         return ans
 
@@ -1835,7 +1834,7 @@ class SuccessiveStat(AbstractStat):
         c.successive_prev = curr
     def report(self,c,sorn):
         return c.successive
-        
+
 # From Philip
 class RClassifierStat(AbstractStat):
     def __init__(self,select=None):

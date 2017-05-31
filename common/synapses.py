@@ -38,7 +38,7 @@ def create_matrix(shape,c):
         return SparseSynapticMatrix(shape,c)
     else:
         return FullSynapticMatrix(shape,c)
-        
+
 class AbstractSynapticMatrix(object):
     """
     Interface for synaptic connection matrices
@@ -46,7 +46,7 @@ class AbstractSynapticMatrix(object):
     def __init__(self,shpae,c):
         """
         Initializes the variables of the matrix.
-        
+
         Parameters:
             shape: array
                 row/col --> size(to), size(from)
@@ -68,7 +68,7 @@ class AbstractSynapticMatrix(object):
     def stdp(self,from_old,from_new,to_old=None,to_new=None):
         """
         Performs Spike-Timing-Dependent-Plasticity
-        
+
         Parameters:
             from_old: array
                 The state vector of the projecting population from the
@@ -88,7 +88,7 @@ class AbstractSynapticMatrix(object):
         """
         Performs Inhibitory Spike-Timing-Dependent-Plasticity as defined
         in Zheng 2013
-        
+
         Parameters:
             y_old: array
                 The old state of the inhibitory population
@@ -103,14 +103,14 @@ class AbstractSynapticMatrix(object):
         raise NotImplementedError
     def ss(self):
         """
-        Performs synaptic scaling defined as normalizing all incoming 
+        Performs synaptic scaling defined as normalizing all incoming
         weights to a sum of 1 for each unit
         """
         raise NotImplementedError
     def __mul__(self,x):
         """
         Multiplication of this matrix with a vector
-        
+
         Parameters:
             x: array
                 The vector to multiply with
@@ -126,7 +126,7 @@ class AbstractSynapticMatrix(object):
     def set_synapses(self,W_new):
         """
         Sets the synapses.
-        
+
         Parameters:
             W_new: matrix
                 The new dense connection matrix
@@ -135,16 +135,16 @@ class AbstractSynapticMatrix(object):
     def sane_after_update(self):
         """
         Checks if the incomming connections to each neuron sum to 1 and
-        if the weights are in the range (0,1) 
+        if the weights are in the range (0,1)
         """
         raise NotImplementedError
-        
+
 
 class FullSynapticMatrix(AbstractSynapticMatrix):
     """
     Dense connection matrix class for SORN synapses.
-    """ 
-    def __init__(self,shape,c): 
+    """
+    def __init__(self,shape,c):
 
         self.c = c
         # M is a mask with 1s for all existing connections
@@ -162,7 +162,7 @@ class FullSynapticMatrix(AbstractSynapticMatrix):
                 if c.avoid_self_connections:
                     np.fill_diagonal(self.M,False)
                 if np.all(np.sum(self.M,1)>0):
-                    break                
+                    break
         self.W = np.random.rand(*shape)
         self.W[~self.M] = 0.0
         self.ss()
@@ -195,15 +195,15 @@ class FullSynapticMatrix(AbstractSynapticMatrix):
             to_old = from_old
         if to_new is None:
             to_new = from_new
-        
+
         dw = c.eta_stdp*(to_new[:,None]*from_old[None,:]
                          -to_old[:,None]*from_new[None,:])
-        
+
         #~ # Compare with Andreea's implementation --> works
         #~ A = np.dot(from_old,to_new.T)
         #~ aux = c.eta_stdp*(A.T-A)
         #~ print sum(dw-aux)
-        
+
         # Uses M to only change connections that actually exist
         self.W[self.M] += dw[self.M]
         self.W[self.W>1.0] = 1.0
@@ -216,10 +216,10 @@ class FullSynapticMatrix(AbstractSynapticMatrix):
         self.W[self.M] += -c.eta_istdp*((1-(x[:,None]*(1+1.0/c.h_ip)))\
                                         *y_old[None,:])[self.M]
         # can't use W < 0 because W get's 0 often
-        self.W[self.W<=0] = 0.001 
+        self.W[self.W<=0] = 0.001
         self.W *= self.M
         self.W[self.W>1.0] = 1.0
-        
+
     def istdp_pos(self,y_old,x):
         c = self.c
         if not c.has_key('eta_istdp'):
@@ -268,13 +268,13 @@ class FullSynapticMatrix(AbstractSynapticMatrix):
 
         return True
 
-class SparseSynapticMatrix(AbstractSynapticMatrix): 
+class SparseSynapticMatrix(AbstractSynapticMatrix):
     """
     A sparse implementation of the connection matrix.
     This uses the CSC format.
     """
     def __init__(self, shape, c):
-        
+
         self.c = c
         (M,N) = shape
         # c.lamb = number of outgoing synapses
@@ -282,7 +282,7 @@ class SparseSynapticMatrix(AbstractSynapticMatrix):
             p = 1.0
         else:
             p = c.lamb/(M+1e-16)
-        # p = probability of a connection being set. 
+        # p = probability of a connection being set.
         # (for both incomming and outgoing)
         rv = st.binom(N,p) # random variable for number of incomming connections
         ns = rv.rvs(M)     # sample number of incomming connections
@@ -293,14 +293,14 @@ class SparseSynapticMatrix(AbstractSynapticMatrix):
             if all(ns>0):
                 break
         W_dok = sp.dok_matrix( shape, dtype=np.float)
-        
+
         if c.avoid_self_connections:
             j_s = range(N-1)
             ns -= 1
             ns[ns<=0] = 1
         else:
             j_s = range(N)
-            
+
         for i in range(M):
             data = np.random.rand(ns[i])
             data /= sum(data)+1e-10
@@ -314,10 +314,10 @@ class SparseSynapticMatrix(AbstractSynapticMatrix):
         self.W = W_dok.tocsc()
         self.ss()
         #Used for optimizing structural plasticity
-        self.struct_p_count = 0 
+        self.struct_p_count = 0
         self.struct_p_list = []
-        
-        
+
+
         if not self.sane_after_update():
             print "NOT SANE IN INIT"
 
@@ -380,9 +380,9 @@ class SparseSynapticMatrix(AbstractSynapticMatrix):
         self.W.data -= c.eta_istdp*\
                        ((1-(x[col]*(1+1.0/c.h_ip)))*y_old[row])
         # can't use W < 0 because W get's 0 often
-        self.W.data[self.W.data<=0] = 0.001 
+        self.W.data[self.W.data<=0] = 0.001
         self.W.data[self.W.data>1.0] = 1.0
-        
+
     def istdp_pos(self,y_old,x):
         c = self.c
         if not c.has_key('eta_istdp') or c.eta_istdp <= 0.0:
@@ -391,10 +391,10 @@ class SparseSynapticMatrix(AbstractSynapticMatrix):
         N = self.W.shape[1]
         row = np.repeat(np.arange(N),np.diff(self.W.indptr))
         col = self.W.indices
-        
+
         self.W.data += c.eta_istdp*((1-x[col])*y_old[row])
         # can't use W < 0 because W get's 0 often
-        self.W.data[self.W.data<=0] = 0.001 
+        self.W.data[self.W.data<=0] = 0.001
         self.W.data[self.W.data>1.0] = 1.0
 
     def ss(self):

@@ -33,7 +33,7 @@ class AbstractSource(object):
         """
         Generates connection matrix W_eu from input to the excitatory
         population
-        
+
         Parameters:
             N_e: int
                 Number of excitatory units
@@ -43,7 +43,7 @@ class AbstractSource(object):
         """
         Generates connection matrix W_iu from input to the inhibitory
         population
-        
+
         Parameters:
             N_e: int
                 Number of excitatory units
@@ -59,7 +59,7 @@ class CountingSource(AbstractSource):
     def __init__(self, words,probs, N_u_e, N_u_i, avoid=False):
         """
         Initializes variables.
-        
+
         Parameters:
             words: list
                 The words to present
@@ -85,14 +85,14 @@ class CountingSource(AbstractSource):
         self.glob_ind.extend(cumsum(map(len,words)))
         self.predict = self.predictability()
         self.reset()
-    
+
     @classmethod
     def init_simple(cls, N_words, N_letters, word_length, max_fold_prob,
                     N_u_e, N_u_i, avoiding, words=None):
         """
         Construct the arguments for the source to make it usable for the
         cluster
-        
+
         Parameters:
             N_words: int
                 Number of different words
@@ -112,28 +112,28 @@ class CountingSource(AbstractSource):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         assert(N_letters <= len(letters))
         letters = array([x for x in letters[:N_letters]])
-        
+
         if words is None:
             words = []
-            
+
             for i in range(N_words):
                 word = letters[randint(0,N_letters,randint(word_length[0],
                                                          word_length[1]+1))]
                 words.append(''.join(word))
         else:
-            assert(N_words == len(words) and 
+            assert(N_words == len(words) and
                    N_letters == len(unique(''.join(words))))
-            
+
         probs = array([rand(N_words)*(max_fold_prob-1)+1]*N_words)
 
         # Normalize
         probs /= sum(probs,1)
- 
+
         return CountingSource(words, probs, N_u_e, N_u_i, avoid=avoiding)
 
     def generate_connection_e(self,N_e):
         W = zeros((N_e,self.N_a))
-        
+
         # CHANGE_A fixed weight matrix # for now for fanofactor
         # for a in range(self.N_a):
         #     W[a*self.N_u_e:(a+1)*self.N_u_e,a] = 1
@@ -144,7 +144,7 @@ class CountingSource(AbstractSource):
             W[temp,a] = 1
             if self.avoid:
                 available = available.difference(temp)
-        # The underscore has the special property that it doesn't 
+        # The underscore has the special property that it doesn't
         # activate anything:
         if '_' in self.lookup:
             W[:,self.lookup['_']] = 0
@@ -156,7 +156,7 @@ class CountingSource(AbstractSource):
         ans.W = W
 
         return ans
-        
+
     def generate_connection_i(self,N_i):
         c = utils.Bunch(use_sparse=False,
                 lamb=np.inf,
@@ -175,8 +175,8 @@ class CountingSource(AbstractSource):
                 W[:,self.lookup['_']] = 0
         ans.W = W
 
-        return ans           
-            
+        return ans
+
     def char(self):
         word = self.words[self.word_index]
         return word[self.ind]
@@ -184,6 +184,7 @@ class CountingSource(AbstractSource):
     def index(self):
         character = self.char()
 
+        import ipdb; ipdb.set_trace()
         ind = self.lookup[character]
         return ind
 
@@ -201,7 +202,7 @@ class CountingSource(AbstractSource):
         ans = zeros(self.N_a)
         ans[self.index()] = 1
         return ans
-        
+
     def reset(self):
         self.next_word()
         self.ind = -1
@@ -211,7 +212,7 @@ class CountingSource(AbstractSource):
 
     def global_range(self):
         return self.glob_ind[-1]
-        
+
     def trial_finished(self):
         return self.ind+1 >= len(self.words[self.word_index])
 
@@ -228,7 +229,7 @@ class CountingSource(AbstractSource):
         probs = array(probs)
         probs = (probs + self.probs.max(1)-1)/probs
         return sum(final*probs)
-        
+
 class TrialSource(AbstractSource):
     """
     This source takes any other source and gives it a trial-like
@@ -247,14 +248,14 @@ class TrialSource(AbstractSource):
         self.resetter = resetter
         self._reset_source()
         self.blank_step = 0
-        
+
     def reset_blank_length(self):
         if self.blank_var_length > 0:
             self.blank_length = self.blank_min_length\
                                 + randint(self.blank_var_length)
         else:
             self.blank_length = self.blank_min_length
-        
+
     def next(self):
         if not self.source.trial_finished():
             return self.source.next()
@@ -267,26 +268,26 @@ class TrialSource(AbstractSource):
             else:
                 self.blank_step += 1
                 return self.defaultstim
-            
+
 
     def _reset_source(self):
         if self.resetter is not None:
             getattr(self.source,self.resetter)()
-            
+
     def global_range(self):
         return source.global_range() # TODO +1 ?
-        
+
     def global_index(self):
         if self.blank_step > 0:
             return -1
         return self.source.global_index()
-        
+
     def generate_connection_e(self, N_e):
         return self.source.generate_connection_e(N_e)
-        
+
     def generate_connection_i(self, N_i):
         return self.source.generate_connection_i(N_i)
-        
+
 class AndreeaCountingSource(AbstractSource):
     """
     This was only for debugging purposes - it resembles her matlab code
@@ -299,7 +300,7 @@ class AndreeaCountingSource(AbstractSource):
         self.t = -1
         # change m,n,x to make them identical
 
-        
+
         if train:
             self.seq[self.seq==2] = 80
             self.seq[self.seq==3] = 2
@@ -317,16 +318,16 @@ class AndreeaCountingSource(AbstractSource):
             self.lookup = {'A':0,'B':1,'X':7,'M':5,'N':6,'C':2,'D':3,'E':4}
 
             #~ self.lookup = {'A':0,'B':1,'X':2,'M':3,'N':4,'C':9,'D':10,'E':11}
-            
+
             self.alphabet = 'ABCDEMNX'
             self.words = ['AXXXXXM','BXXXXXN','CXXXXXN','CXXXXXM','DXXXXXN','DXXXXXM','EXXXXXN','EXXXXXM']
             self.glob_ind = [0]
-            self.glob_ind.extend(cumsum(map(len,self.words))) 
+            self.glob_ind.extend(cumsum(map(len,self.words)))
         self.N_a = self.seq.max()+1
-        
+
     def next(self):
         self.t += 1
-        tmp = zeros((self.N_a)) 
+        tmp = zeros((self.N_a))
         tmp[self.seq[self.t]] = 1
         return tmp
     def global_range(self):
@@ -353,7 +354,7 @@ class AndreeaCountingSource(AbstractSource):
 class NoSource(AbstractSource):
     """
     No input for the spontaneous conditions
-    
+
     Parameters:
         N_i: int
             Number of input units
@@ -376,13 +377,13 @@ class NoSource(AbstractSource):
         tmpsyn = synapses.create_matrix((N_e,self.N_i),c)
         tmpsyn.set_synapses(tmpsyn.get_synapses()*0)
         return tmpsyn
-        
+
     def generate_connection_i(self,N_i):
         c = utils.Bunch(use_sparse=False,
                         lamb=np.inf,
                         avoid_self_connections=False)
         return synapses.create_matrix((N_i,self.N_i),c)
-        
+
 class RandomSource(AbstractSource):
     """
     Poisson input spike trains.
@@ -390,7 +391,7 @@ class RandomSource(AbstractSource):
     def __init__(self, firing_rate, N_neurons, connection_density,eta_stdp):
         """
         Initialize the source
-        
+
         Parameters:
             firing_rate: double
                 The firing rate of all input neurons
@@ -399,7 +400,7 @@ class RandomSource(AbstractSource):
             connection_density: double
                 Density of connections from input to excitatory pop
             eta_stdp: double
-                STDP rate for the W_eu matrix                
+                STDP rate for the W_eu matrix
         """
         self.rate = firing_rate
         self.N = N_neurons
@@ -423,5 +424,5 @@ class RandomSource(AbstractSource):
         while(noone):
             tmp.set_synapses((rand(N_e,self.N)<self.density).astype(float))
             if sum(tmp.get_synapses()) > 0:
-                noone = False                
+                noone = False
         return tmp

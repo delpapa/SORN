@@ -2,7 +2,7 @@
 
 This code contains the necessary files to simulate the SORN model and perform the avalanche analysis as described in [Del Papa et al. (2017)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0178683). It is based on the previous implementation by [Hartmann et al. (2015)](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004640), which can be found [here](https://github.com/chrhartm/SORN).
 
-This model implementation runs on python 2.7 and was my first repository, so it is not very organized, efficient, or easy to clone and run. A new (and simpler) implementation on python 3, SORN_V2, is currently under development. The link will be provided here as soon as it is available.
+This model implementation runs in python 2.7 and was my first repository, so it is not very organized, efficient, or easy to clone and run. It also lacks requirements files and installation guides, so version conflicts for some packages are to be expected. Instead of updating and maintaining this old repository, I have decide to create a new (and hopefully better) one. The new implementation in python 3, **SORN_V2**, is currently under development. The link will be provided here as soon as it is available.
 
 ## Experiments
 
